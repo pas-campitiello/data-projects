@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Viewer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: space-between;
+            height: 100vh;
+        }
+
+        .half {
+            flex: 0 0 49%;
+            padding: 20px;
+            overflow: auto;
+            box-sizing: border-box;
+        }
+
+        .left {
+            border-right: 2px solid #ddd;
+        }
+    </style>
+</head>
+<body>
+
+<div class="half left">
+    <select id="csv-select-left">
+        <!-- Options will be populated dynamically -->
+    </select>
+    <pre id="csv-content-left"></pre>
+</div>
+
+<div class="half right">
+    <select id="csv-select-right">
+        <!-- Options will be populated dynamically -->
+    </select>
+    <pre id="csv-content-right"></pre>
+</div>
+
+<script>
+    // Assuming you have the following CSV files in the same directory: data1.csv, data2.csv, etc.
+    const csvFiles = ["data1.csv", "data2.csv", "data3.csv"];  // Add your file names here
+
+    const selectElementLeft = document.getElementById("csv-select-left");
+    const contentElementLeft = document.getElementById("csv-content-left");
+    const selectElementRight = document.getElementById("csv-select-right");
+    const contentElementRight = document.getElementById("csv-content-right");
+
+    // Populate the select options for both menus
+    csvFiles.forEach(file => {
+        const optionLeft = document.createElement("option");
+        optionLeft.value = file;
+        optionLeft.textContent = file.replace(".csv", "");
+        selectElementLeft.appendChild(optionLeft);
+
+        const optionRight = optionLeft.cloneNode(true);
+        selectElementRight.appendChild(optionRight);
+    });
+
+    async function fetchCSV(filename, targetElement) {
+        try {
+            const response = await fetch(filename);
+            const text = await response.text();
+            targetElement.textContent = text;
+        } catch (err) {
+            targetElement.textContent = "Error loading CSV.";
+        }
+    }
+
+    selectElementLeft.addEventListener("change", (event) => {
+        const selectedFile = event.target.value;
+        fetchCSV(selectedFile, contentElementLeft);
+    });
+
+    selectElementRight.addEventListener("change", (event) => {
+        const selectedFile = event.target.value;
+        fetchCSV(selectedFile, contentElementRight);
+    });
+
+    // Load the first CSV by default for both halves
+    fetchCSV(csvFiles[0], contentElementLeft);
+    fetchCSV(csvFiles[0], contentElementRight);
+</script>
+</body>
+</html>
